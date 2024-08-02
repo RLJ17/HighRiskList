@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 import json
+from flask import jsonify
 
 def search_offshore_leaks(entity_name):
     entity_search = entity_name.strip().lower().replace(' ', '+')
@@ -10,7 +11,10 @@ def search_offshore_leaks(entity_name):
     }
     response = requests.get(url, headers=headers)
     if response.status_code != 200:
-        return {'error': 'No se pudo acceder al contenido'}
+        return {
+            'error': 'No se pudo acceder al contenido - Espere unos minutos',
+            'status_code': response.status_code,
+        }
     soup = BeautifulSoup(response.text, 'html.parser')
     
     results = []
@@ -24,9 +28,12 @@ def search_offshore_leaks(entity_name):
             results.append({
                 'Entity': entity_tag.text.strip(),
                 'Jurisdiction': jurisdiction_tag.text.strip(),
-                'Country': country_tag.text.strip(),
+                'LinkedTo': country_tag.text.strip(),
                 'Data From': datafrom_tag.text.strip()
             })
+    if not results:
+        return {'error': 'No se encontraron resultados para la entidad proporcionada',
+                'status_code': response.status_code,}
     
     return {
         'source': 'Offshore Leaks',
@@ -34,6 +41,7 @@ def search_offshore_leaks(entity_name):
         'best_match': results[0],
         'results': results
     }
+
 
 if __name__ == '__main__':
     entity_name = ' british trade '
