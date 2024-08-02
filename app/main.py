@@ -36,8 +36,8 @@ def login():
     # Crear un nuevo token JWT
     access_token = create_access_token(identity=username)
 
-    response = make_response(jsonify({"msg": "Login successful"}))
-    response.set_cookie('riskToken', access_token, httponly=False, samesite='none', secure=True, domain='localhost', expires=datetime.utcnow() + timedelta(minutes=180))
+    response = make_response(jsonify({"msg": "Login successful", "riskToken": access_token}))
+    response.set_cookie('riskToken', access_token, httponly=False, samesite='none', secure=True, expires=datetime.utcnow() + timedelta(minutes=180))
     return response
 
 @app.route("/entidad/<entity_name>")
